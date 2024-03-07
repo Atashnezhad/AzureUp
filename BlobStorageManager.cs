@@ -1,39 +1,36 @@
 ﻿using System.IO.Compression;
 using Azure.Storage.Blobs;
 
-namespace AzureProject
+namespace AzureProject;
+
+public class BlobStorageManager
 {
-    public class BlobStorageManager
+    private readonly string _connectionString;
+
+    public BlobStorageManager(string connectionString)
     {
-        private readonly string _connectionString;
+        _connectionString = connectionString;
+    }
 
-        public BlobStorageManager(string connectionString)
+    public async Task UploadFolderAsZipAsync(string folderPath, string containerName, string blobName)
+    {
+        // Create a temporary zip file
+        var zipFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.zip");
+        ZipFile.CreateFromDirectory(folderPath, zipFilePath);
+
+        try
         {
-            _connectionString = connectionString;
+            // Upload the zip file to Azure Blob Storage
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            await blobClient.UploadAsync(zipFilePath);
         }
-
-        public async Task UploadFolderAsZipAsync(string folderPath, string containerName, string blobName)
+        finally
         {
-            // Create a temporary zip file
-            string zipFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.zip");
-            ZipFile.CreateFromDirectory(folderPath, zipFilePath);
-
-            try
-            {
-                // Upload the zip file to Azure Blob Storage
-                BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
-                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-                BlobClient blobClient = containerClient.GetBlobClient(blobName);
-
-                await blobClient.UploadAsync(zipFilePath);
-            }
-            finally
-            {
-                // Delete the temporary zip file
-                File.Delete(zipFilePath);
-            }
+            // Delete the temporary zip file
+            File.Delete(zipFilePath);
         }
     }
-    
 }
-
