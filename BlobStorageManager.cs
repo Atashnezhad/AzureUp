@@ -1,36 +1,49 @@
-﻿using System.IO.Compression;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using dotenv.net;
+using Microsoft.Extensions.Logging;
 
-namespace AzureProject;
-
-public class BlobStorageManager
+public class BlobStorageUploader
 {
     private readonly string _connectionString;
+    private readonly string _containerName;
+    private readonly ILogger<BlobStorageUploader> _logger;
 
-    public BlobStorageManager(string connectionString)
+    public BlobStorageUploader(string connectionString, string containerName, ILogger<BlobStorageUploader> logger)
     {
         _connectionString = connectionString;
+        _containerName = containerName;
+        _logger = logger;
     }
 
-    public async Task UploadFolderAsZipAsync(string folderPath, string containerName, string blobName)
+    public async Task UploadFileAsync(string filePath)
     {
-        // Create a temporary zip file
-        var zipFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.zip");
-        ZipFile.CreateFromDirectory(folderPath, zipFilePath);
-
         try
         {
-            // Upload the zip file to Azure Blob Storage
-            var blobServiceClient = new BlobServiceClient(_connectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = containerClient.GetBlobClient(blobName);
+            // Create a BlobServiceClient object which will be used to create a container client
+            BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
 
-            await blobClient.UploadAsync(zipFilePath);
+            // Create the container client
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
+
+            // Get a reference to a blob
+            BlobClient blobClient = containerClient.GetBlobClient(Path.GetFileName(filePath));
+
+            // Open the file and upload it to blob storage
+            using (FileStream fileStream = File.OpenRead(filePath))
+            {
+                await blobClient.UploadAsync(fileStream, true);
+            }
+
+            _logger.LogInformation("File uploaded successfully.");
         }
-        finally
+        catch (Exception ex)
         {
-            // Delete the temporary zip file
-            File.Delete(zipFilePath);
+            _logger.LogError(ex, "Error occurred while uploading file to blob storage.");
+            throw;
         }
     }
 }
+

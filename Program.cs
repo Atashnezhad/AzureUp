@@ -1,36 +1,24 @@
-﻿using AzureProject;
+﻿using dotenv.net;
+using Microsoft.Extensions.Logging;
 
 internal class Program
 {
     private static async Task Main(string[] args)
     {
-        
-        // Get the current directory
-        // Define the relative file path
-        string relativeFilePath = Path.Combine("..", "..", "..", "resources", "data.json");
+        DotEnv.Load();
 
-        // Read the JSON data from the file
-        string jsonData = File.ReadAllText(relativeFilePath);
+        string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+        string containerName = Environment.GetEnvironmentVariable("CONTAINER_NAME");
+        string filePath = @"C:\Users\atash\OneDrive\Desktop\New Microsoft Publisher Document.pub";
 
-        // Parse JSON string into Person object
-        Person person = Person.FromJson(jsonData);
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            // Add other logging providers as needed
+        });
+        var logger = loggerFactory.CreateLogger<BlobStorageUploader>();
 
-        // Access properties of the person object
-        Console.WriteLine($"First Name: {person.FirstName}");
-        Console.WriteLine($"Last Name: {person.LastName}");
-        Console.WriteLine($"Age: {person.Age}");
-        Console.WriteLine($"Email: {person.Email}");
-        
-        
-        
-        // var connectionString = "your_connection_string";
-        // var folderPath = "path_to_your_folder";
-        // var containerName = "your_container_name";
-        // var blobName = "your_blob_name";
-        //
-        // var storageManager = new BlobStorageManager(connectionString);
-        // await storageManager.UploadFolderAsZipAsync(folderPath, containerName, blobName);
-        //
-        // Console.WriteLine("Folder uploaded as zip to Azure Blob Storage.");
+        BlobStorageUploader uploader = new BlobStorageUploader(connectionString, containerName, logger);
+        await uploader.UploadFileAsync(filePath);
     }
 }
