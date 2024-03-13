@@ -7,6 +7,7 @@ using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Azure.Management;
 using Microsoft.Rest.Azure.Authentication;
 using System;
+using Microsoft.Azure.Management.Compute.Fluent;
 
 
 namespace AzureProject
@@ -31,7 +32,12 @@ namespace AzureProject
             var credentials = SdkContext.AzureCredentialsFactory
                 .FromServicePrincipal(_clientId, _clientSecret, _tenantId, AzureEnvironment.AzureGlobalCloud);
 
-            var azure = Azure.Configure()
+            // var azure = Azure.Configure()
+            //     .Authenticate(credentials)
+            //     .WithSubscription(_subscriptionId);
+            
+            var azure = Microsoft.Azure.Management.Fluent.Azure
+                .Configure()
                 .Authenticate(credentials)
                 .WithSubscription(_subscriptionId);
 
@@ -51,7 +57,7 @@ namespace AzureProject
                     .WithNewPrimaryNetwork("10.0.0.0/24")
                     .WithPrimaryPrivateIPAddressDynamic()
                     .WithNewPrimaryPublicIPAddress(vmName + "publicip")
-                    .WithPopularLinuxImage(KnownLinuxVirtualMachineImage.UbuntuServer16_04_LTS)
+                    .WithPopularLinuxImage(KnownLinuxVirtualMachineImage.UbuntuServer16_04_Lts)
                     .WithRootUsername(adminUser)
                     .WithRootPassword(adminPassword)
                     .WithSize(vmSize)
