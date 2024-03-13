@@ -24,16 +24,16 @@ public class BlobStorageUploader
         try
         {
             // Create a BlobServiceClient object which will be used to create a container client
-            BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
+            var blobServiceClient = new BlobServiceClient(_connectionString);
 
             // Create the container client
-            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
+            var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
 
             // Get a reference to a blob
-            BlobClient blobClient = containerClient.GetBlobClient(Path.GetFileName(filePath));
+            var blobClient = containerClient.GetBlobClient(Path.GetFileName(filePath));
 
             // Open the file and upload it to blob storage
-            using (FileStream fileStream = File.OpenRead(filePath))
+            using (var fileStream = File.OpenRead(filePath))
             {
                 await blobClient.UploadAsync(fileStream, true);
             }
@@ -46,13 +46,13 @@ public class BlobStorageUploader
             throw;
         }
     }
-    
+
     public async Task UploadDirectoryAsync(string directoryPath)
     {
         try
         {
-            string zipFileName = $"{Path.GetFileName(directoryPath)}.zip";
-            string zipFilePath = Path.Combine(Path.GetDirectoryName(directoryPath), zipFileName);
+            var zipFileName = $"{Path.GetFileName(directoryPath)}.zip";
+            var zipFilePath = Path.Combine(Path.GetDirectoryName(directoryPath), zipFileName);
 
             // Create a zip archive of the directory
             ZipFile.CreateFromDirectory(directoryPath, zipFilePath);
@@ -71,8 +71,4 @@ public class BlobStorageUploader
             throw;
         }
     }
-    
-    
-    
 }
-

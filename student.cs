@@ -8,14 +8,10 @@ public class Person
 {
     // Constructor for deserialization
     // the name in the json file is firstname
-    [JsonPropertyName("firstName")]
-    public string FirstName { get; set; }
-    [JsonPropertyName("lastName")]
-    public string LastName { get; set; }
-    [JsonPropertyName("age")]
-    public int Age { get; set; }
-    [JsonPropertyName("email")]
-    public string Email { get; set; }
+    [JsonPropertyName("firstName")] public string FirstName { get; set; }
+    [JsonPropertyName("lastName")] public string LastName { get; set; }
+    [JsonPropertyName("age")] public int Age { get; set; }
+    [JsonPropertyName("email")] public string Email { get; set; }
 
     // Method to parse JSON string into Person object
     public static Person FromJson(string json)

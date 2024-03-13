@@ -7,9 +7,10 @@ internal class Program
     {
         DotEnv.Load();
 
-        string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-        string containerName = Environment.GetEnvironmentVariable("CONTAINER_NAME");
-        string filePath = @"C:\Users\atash\RiderProjects\AzureProject\resources\Test_file\New Microsoft Publisher Document.pub";
+        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+        var containerName = Environment.GetEnvironmentVariable("CONTAINER_NAME");
+        var filePath =
+            @"C:\Users\atash\RiderProjects\AzureProject\resources\Test_file\New Microsoft Publisher Document.pub";
 
         var loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -18,12 +19,13 @@ internal class Program
         });
         var logger = loggerFactory.CreateLogger<BlobStorageUploader>();
 
-        BlobStorageUploader uploader = new BlobStorageUploader(connectionString, containerName, logger);
+        var uploader = new BlobStorageUploader(connectionString, containerName, logger);
         await uploader.UploadFileAsync(filePath);
-        
-        
+
+
         // Path to the directory you want to upload
-        string directoryPath = @"C:\Users\atash\RiderProjects\AzureProject\resources\Test_dir";;
+        var directoryPath = @"C:\Users\atash\RiderProjects\AzureProject\resources\Test_dir";
+        ;
 
         try
         {
