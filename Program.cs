@@ -9,7 +9,7 @@ internal class Program
 
         string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
         string containerName = Environment.GetEnvironmentVariable("CONTAINER_NAME");
-        string filePath = @"C:\Users\atash\OneDrive\Desktop\New Microsoft Publisher Document.pub";
+        string filePath = @"C:\Users\atash\RiderProjects\AzureProject\resources\Test_file\New Microsoft Publisher Document.pub";
 
         var loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -20,5 +20,20 @@ internal class Program
 
         BlobStorageUploader uploader = new BlobStorageUploader(connectionString, containerName, logger);
         await uploader.UploadFileAsync(filePath);
+        
+        
+        // Path to the directory you want to upload
+        string directoryPath = @"C:\Users\atash\RiderProjects\AzureProject\resources\Test_dir";;
+
+        try
+        {
+            // Upload the directory to Azure Blob Storage
+            await uploader.UploadDirectoryAsync(directoryPath);
+            Console.WriteLine("Directory uploaded successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
     }
 }

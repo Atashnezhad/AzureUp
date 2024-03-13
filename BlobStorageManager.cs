@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using dotenv.net;
@@ -45,5 +46,33 @@ public class BlobStorageUploader
             throw;
         }
     }
+    
+    public async Task UploadDirectoryAsync(string directoryPath)
+    {
+        try
+        {
+            string zipFileName = $"{Path.GetFileName(directoryPath)}.zip";
+            string zipFilePath = Path.Combine(Path.GetDirectoryName(directoryPath), zipFileName);
+
+            // Create a zip archive of the directory
+            ZipFile.CreateFromDirectory(directoryPath, zipFilePath);
+
+            // Upload the zip file to Azure Blob Storage
+            await UploadFileAsync(zipFilePath);
+
+            // Delete the temporary zip file
+            File.Delete(zipFilePath);
+
+            _logger.LogInformation("Directory uploaded successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while uploading directory to blob storage.");
+            throw;
+        }
+    }
+    
+    
+    
 }
 
